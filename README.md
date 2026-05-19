@@ -1,7 +1,10 @@
 **End-to-End YouTube Channel Analytics Pipeline
+
 A complete data engineering pipeline that collects data from the YouTube Data API v3, processes it with PySpark, orchestrates workflows using Apache Airflow, visualizes insights in Grafana, and runs entirely inside Docker containers.
 ---
+
 Project Overview
+
 This project analyzes a Football/Sports Highlights YouTube channel — collecting video performance data, transforming it, and surfacing insights through interactive dashboards.
 
 ---
