@@ -4,12 +4,14 @@ A complete data engineering pipeline that collects data from the YouTube Data AP
 
 ---
 
-Project Overview
+**Project Overview**
 
 This project analyzes a Football/Sports Highlights YouTube channel — collecting video performance data, transforming it, and surfacing insights through interactive dashboards.
 
 ---
-Architecture
+
+**Architecture**
+
 ```
 YouTube Data API v3
         │
@@ -29,7 +31,9 @@ All orchestrated by Apache Airflow DAG (youtube_data_pipeline)
 All services containerized with Docker
 ```
 ---
-Project Structure
+
+**Project Structure**
+
 ```
 youtube_project/
 ├── Dockerfile                          # Airflow + Java + PySpark image
@@ -59,7 +63,9 @@ youtube_project/
             └── dashboard.yaml         # Auto-loads dashboard
 ```
 ---
-Tech Stack
+
+**Tech Stack**
+
 Tool	Version	Purpose
 Python	3.11	Core language
 YouTube Data API v3	—	Data source
@@ -68,6 +74,7 @@ Apache Airflow	2.9.1	Workflow orchestration
 PostgreSQL	15	Data storage
 Grafana	10.4.0	Visualization
 Docker	—	Containerization
+
 ---
 Pipeline Tasks
 Task 1 — Data Ingestion (`youtube_data_api.py`)
