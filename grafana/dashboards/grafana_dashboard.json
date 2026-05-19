@@ -1,0 +1,235 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_POSTGRESQL",
+      "label": "PostgreSQL",
+      "description": "Connect to your youtube_video_stats table",
+      "type": "datasource",
+      "pluginId": "postgres",
+      "pluginName": "PostgreSQL"
+    }
+  ],
+  "__requires": [
+    { "type": "grafana",    "id": "grafana",   "name": "Grafana",    "version": "10.0.0" },
+    { "type": "datasource", "id": "postgres",  "name": "PostgreSQL", "version": "1.0.0"  },
+    { "type": "panel",      "id": "barchart",  "name": "Bar chart",  "version": ""       },
+    { "type": "panel",      "id": "timeseries","name": "Time series","version": ""       },
+    { "type": "panel",      "id": "heatmap",   "name": "Heatmap",    "version": ""       },
+    { "type": "panel",      "id": "stat",      "name": "Stat",       "version": ""       },
+    { "type": "panel",      "id": "table",     "name": "Table",      "version": ""       }
+  ],
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Total Videos",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "${DS_POSTGRESQL}" },
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "auto" },
+      "targets": [{
+        "rawSql": "SELECT COUNT(*) AS value FROM youtube_video_stats;",
+        "format": "table", "refId": "A"
+      }]
+    },
+
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Total Views",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "${DS_POSTGRESQL}" },
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "auto" },
+      "targets": [{
+        "rawSql": "SELECT SUM(views) AS value FROM youtube_video_stats;",
+        "format": "table", "refId": "A"
+      }]
+    },
+
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Avg Engagement Rate",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "${DS_POSTGRESQL}" },
+      "options": {
+        "colorMode": "background", "graphMode": "none", "textMode": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "decimals": 2 }
+      },
+      "targets": [{
+        "rawSql": "SELECT ROUND(AVG(engagement_rate)::numeric, 4) AS value FROM youtube_video_stats;",
+        "format": "table", "refId": "A"
+      }]
+    },
+
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Total Likes",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "${DS_POSTGRESQL}" },
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "auto" },
+      "targets": [{
+        "rawSql": "SELECT SUM(likes) AS value FROM youtube_video_stats;",
+        "format": "table", "refId": "A"
+      }]
+    },
+
+    {
+      "id": 5,
+      "type": "barchart",
+      "title": "Insight 1 — Top 10 Most Viewed Videos",
+      "description": "Bar chart of the 10 videos with the highest view count.",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 4 },
+      "datasource": { "type": "postgres", "uid": "${DS_POSTGRESQL}" },
+      "options": {
+        "orientation": "horizontal",
+        "xTickLabelRotation": 0,
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" },
+        "overrides": []
+      },
+      "targets": [{
+        "rawSql": "SELECT title, views FROM youtube_video_stats ORDER BY views DESC LIMIT 10;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Insight 2 — Engagement Rate Over Time (by Publish Date)",
+      "description": "Shows how engagement rate (likes+comments / views) trends across publish dates.",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "type": "postgres", "uid": "${DS_POSTGRESQL}" },
+      "options": {
+        "tooltip": { "mode": "multi" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 3,
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+        }
+      },
+      "targets": [{
+        "rawSql": "SELECT publishedAt AS time, engagement_rate AS \"Engagement Rate\" FROM youtube_video_stats WHERE publishedAt IS NOT NULL ORDER BY publishedAt ASC;",
+        "format": "time_series",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Insight 3 — Cumulative Views Over Time",
+      "description": "Running total of views by video publish date — approximates channel growth.",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "type": "postgres", "uid": "${DS_POSTGRESQL}" },
+      "options": {
+        "tooltip": { "mode": "multi" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "custom": { "lineWidth": 2, "fillOpacity": 20 }
+        }
+      },
+      "targets": [{
+        "rawSql": "SELECT publishedAt AS time, SUM(views) OVER (ORDER BY publishedAt ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS \"Cumulative Views\" FROM youtube_video_stats WHERE publishedAt IS NOT NULL ORDER BY publishedAt ASC;",
+        "format": "time_series",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 8,
+      "type": "heatmap",
+      "title": "Insight 4 — Publishing Heatmap (Day of Week × Hour of Day)",
+      "description": "Heatmap showing when videos are published and how many views they accumulate in each day/hour bucket.",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 23 },
+      "datasource": { "type": "postgres", "uid": "${DS_POSTGRESQL}" },
+      "options": {
+        "calculate": false,
+        "yAxis": { "axisLabel": "Publish Day" },
+        "color": { "scheme": "Oranges", "mode": "scheme" },
+        "tooltip": { "show": true, "yHistogram": false }
+      },
+      "targets": [{
+        "rawSql": "SELECT publish_day_name AS \"Day\", publish_hour AS \"Hour\", SUM(views) AS \"Views\" FROM youtube_video_stats GROUP BY publish_day_name, publish_hour ORDER BY \"Hour\";",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 9,
+      "type": "barchart",
+      "title": "Insight 5 — Average Views by Day of Week",
+      "description": "Which day of the week gets the most average views at publish time.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 },
+      "datasource": { "type": "postgres", "uid": "${DS_POSTGRESQL}" },
+      "options": {
+        "orientation": "vertical",
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "color": { "mode": "palette-classic" } }
+      },
+      "targets": [{
+        "rawSql": "SELECT publish_day_name AS \"Day\", ROUND(AVG(views)) AS \"Avg Views\" FROM youtube_video_stats GROUP BY publish_day_name, publish_day ORDER BY publish_day;",
+        "format": "table",
+        "refId": "A"
+      }]
+    },
+
+    {
+      "id": 10,
+      "type": "table",
+      "title": "Insight 6 — Full Video Stats Table",
+      "description": "Sortable table of all videos with all key metrics.",
+      "gridPos": { "h": 12, "w": 12, "x": 12, "y": 33 },
+      "datasource": { "type": "postgres", "uid": "${DS_POSTGRESQL}" },
+      "options": { "sortBy": [{ "displayName": "views", "desc": true }] },
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "engagement_rate" },
+            "properties": [{ "id": "unit", "value": "percentunit" }] }
+        ]
+      },
+      "targets": [{
+        "rawSql": "SELECT title, views, likes, comments, ROUND(engagement_rate::numeric,4) AS engagement_rate, publish_day_name, publish_hour FROM youtube_video_stats ORDER BY views DESC;",
+        "format": "table",
+        "refId": "A"
+      }]
+    }
+
+  ],
+  "refresh": "1h",
+  "schemaVersion": 38,
+  "tags": ["youtube", "data-engineering"],
+  "templating": { "list": [] },
+  "time": { "from": "now-90d", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "YouTube Channel Analytics",
+  "uid": "youtube-analytics-v1",
+  "version": 1
+}
