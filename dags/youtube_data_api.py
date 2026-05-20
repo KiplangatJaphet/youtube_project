@@ -1,3 +1,4 @@
+import os
 """
 youtube_data_api.py
 ────────────────────────────────────────────────────────────────────────────────
@@ -13,7 +14,7 @@ import pandas as pd
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 API_KEY    = "AIzaSyCppoUV06LXKMzj7x7LoLGA7IOo5RqHnFM"
-CHANNEL_ID = "UCzdsjuqqfd4-f7gtqcLBOyg"
+CHANNEL_ID = os.getenv("YT_CHANNEL_ID", "")
 
 # Linux path — works both locally (WSL/Linux) and inside Docker containers
 OUTPUT_CSV = "/opt/airflow/data/Youtube_data.csv"
